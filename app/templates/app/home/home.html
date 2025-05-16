@@ -1,8 +1,12 @@
-{% extends "app/templates/base.html" %}
-{% block title %}Carhouse - Home{% endblock %}
-{% block content %}
-
+{% extends "app/base.html" %}
 {% load static %}
 {% load i18n %}
+
+{% block title %}Carhouse - Home{% endblock %}
+{% block content %}
+{% include 'app/partials/banner.html' %}
+{% include 'app/partials/featured-cars.html' %}
+{% include 'app/partials/rent-cars.html' %}
+{% include 'app/partials/cta.html' %}
 
 {% endblock %}

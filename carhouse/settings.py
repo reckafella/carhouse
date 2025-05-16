@@ -11,32 +11,66 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# ignore flake8 errors
+# flake8: noqa
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--aj3(f*jpnzx9)59$2mi)^sswvg2(cr29)nyq2dxi5a5cd#51f'
+FALBACK_KEY = 'django-insecure--aj3(f*jpnzx9)59$2mi)^sswvg2(cr29)nyq2dxi5a5cd#51f'
+SECRET_KEY = os.environ.get('SECRET_KEY', FALBACK_KEY)
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+DEFAULT_HOSTS = "localhost,127.0.0.1,0.0.0.0"
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', DEFAULT_HOSTS).split(',')
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
+if ENVIRONMENT == 'production':
+    DEBUG = False
+    INSTALLED_APPS = []
+    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', "").split(',')
+
+    SUPABASE_USER = os.environ.get('SUPABASE_USER')
+    SUPABASE_DB_NAME = os.environ.get('SUPABASE_DB_NAME')
+    SUPABASE_PASSWORD = os.environ.get('SUPABASE_PASSWORD')
+    SUPABASE_HOST = os.environ.get('SUPABASE_HOST')
+    SUPABASE_PORT = os.environ.get('SUPABASE_PORT')
+
+    CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
+    CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
+    CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
+else:
+    DEBUG = True
+    ALLOWED_HOSTS = DEFAULT_HOSTS.split(',')
+    INSTALLED_APPS = ['daphne']
 
 # Application definition
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+INSTALLED_APPS += [
+    "django.contrib.admin", "django.contrib.auth",
+    "django.contrib.contenttypes", 'django.contrib.sites',
+    "django.contrib.sessions", "django.contrib.messages",
+    "django.contrib.staticfiles", "django.contrib.sitemaps",
+    "corsheaders", "app", 'robots', 'captcha',
+    "django_redis", "crispy_forms",
+]
+
+# wagtail
+INSTALLED_APPS += [
+    'wagtail.contrib.forms', 'wagtail.contrib.redirects', 'wagtail.embeds',
+    'wagtail.sites', 'wagtail.users', 'wagtail.snippets', 'wagtail',
+    'wagtail.images', 'wagtail.search', 'wagtail.admin',
+    'modelcluster', 'taggit', 'wagtail.documents'
 ]
 
 MIDDLEWARE = [
@@ -47,6 +81,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "carhouse.middleware.rate_limit.RateLimitMiddleware",
 ]
 
 ROOT_URLCONF = 'carhouse.urls'
@@ -67,6 +104,7 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = 'carhouse.asgi.application'
 WSGI_APPLICATION = 'carhouse.wsgi.application'
 
 
@@ -90,12 +128,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        },
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'carhouse.validators.password_validator.ComplexPasswordValidator',
     },
 ]
 
@@ -105,7 +149,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -114,10 +158,126 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+STATIC_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+
+APPEND_SLASH = True
+
+WAGTAIL_SITE_NAME = "Car House"
+
+WAGTAILADMIN_BASE_URL = os.environ.get('WAGTAILADMIN_BASE_URL', 'https://rohn.live')
+
+WAGTAIL_FRONTEND_LOGIN_URL = LOGIN_URL
+
+WAGTAIL_FRONTEND_LOGOUT_URL = LOGOUT_URL
+
+WAGTAIL_FRONTEND_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL
+
+WAGTAIL_FRONTEND_LOGOUT_REDIRECT_URL = LOGOUT_REDIRECT_URL
+
+WAGTAILDOCS_EXTENSIONS = [
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt',
+    'csv', 'zip', 'rar', 'tar', 'gz', 'bz2', '7z', 'iso',
+    'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma',
+    'mp4', 'avi', 'mov', 'wmv', 'mkv', 'flv', 'webm',
+    '3gp', '3g2', 'm4v', 'asf', 'rm', 'rmvb', 'vob',
+]
+
+WAGTAILSEARCH_BACKENDS = {
+    'default': {
+        'BACKEND': 'wagtail.search.backends.database',
+    }
+}
+
+WAGTAILADMIN_RICH_TEXT_EDITORS = {
+    'default': {
+        'WIDGET': 'wagtail.admin.rich_text.DraftailRichTextArea',
+        'OPTIONS': {
+            'features': ['h2', 'h3', 'h4', 'h5', 'h6', 'bold', 'italic',
+                         'ol', 'ul', 'link', 'hr', 'code',
+                         'document-link', 'blockquote']
+        }
+    },
+    'full': {
+        'WIDGET': 'wagtail.admin.rich_text.DraftailRichTextArea',
+        'OPTIONS': {
+            'features': ['h2', 'h3', 'h4', 'h5', 'h6', 'bold',
+                         'italic', 'ol', 'ul', 'link', 'hr', 'code',
+                         'document-link', 'blockquote']
+        }
+    },
+    'minimal': {
+        'WIDGET': 'wagtail.admin.rich_text.DraftailRichTextArea',
+        'OPTIONS': {
+            'features': ['h2', 'h3', 'h4', 'h5', 'h6', 'bold',
+                         'italic', 'ol', 'ul', 'link', 'hr', 'code',
+                         'document-link', 'blockquote']
+        }
+    },
+}
+
+MAX_UPLOAD_SIZE: int = 15 * 1024 * 1024  # 15MB
+
+ALLOWED_IMAGE_TYPESS: list = [
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+    'image/svg+xml', 'image/bmp', 'image/tiff', 'image/heif',
+    'image/heic', 'image/jpg', 'image/jfif'
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Transmission, fuel type, color options for the db selection
+TRANSMISSION_CHOICES: dict = {
+    "manual": "Manual",
+    "automatic": "Automatic",
+}
+
+FUEL_TYPE_CHOICES: dict = {
+    "petrol": "Petrol",
+    "diesel": "Diesel",
+    "electric": "Electric",
+    "hybrid": "Hybrid",
+}
+
+COLOR_CHOICES: dict = {
+    "red": "Red",
+    "blue": "Blue",
+    "green": "Green",
+    "black": "Black",
+    "white": "White",
+}
+
+
+# CSRF settings
+def csrf_failure(request, reason=""):
+    """
+    Custom CSRF failure view.
+    """
+    from app.views.auth.auth import CSRFFailureView
+    return CSRFFailureView.as_view()(request, reason=reason)
+
+CSRF_FAILURE_VIEW = csrf_failure
+
+RATELIMIT = 1000
