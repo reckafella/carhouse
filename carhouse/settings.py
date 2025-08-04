@@ -28,17 +28,30 @@ FALBACK_KEY = 'django-insecure--aj3(f*jpnzx9)59$2mi)^sswvg2(cr29)nyq2dxi5a5cd#51
 SECRET_KEY = os.environ.get('SECRET_KEY', FALBACK_KEY)
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production
+# DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+DEFAULT_HOSTS = "*"
+ALLOWED_HOSTS = []
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-DEFAULT_HOSTS = "localhost,127.0.0.1,0.0.0.0"
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', DEFAULT_HOSTS).split(',')
-ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
+# Application definition
+INSTALLED_APPS = [
+    "daphne", "django.contrib.admin", "django.contrib.auth",
+    "django.contrib.contenttypes", 'django.contrib.sites',
+    "django.contrib.sessions", "django.contrib.messages",
+    "django.contrib.staticfiles", "django.contrib.sitemaps",
+    "corsheaders", "app", 'robots', 'captcha', "authentication",
+    "django_redis", "crispy_forms", "cloudinary", "widget_tweaks",
+]
 
 if ENVIRONMENT == 'production':
-    DEBUG = False
-    INSTALLED_APPS = []
-    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', "").split(',')
+    INSTALLED_APPS.remove('daphne')
+
+    ALLOWED_HOSTS.remove('*')
+    _ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', DEFAULT_HOSTS).split(',')
+    ALLOWED_HOSTS.extend(_ALLOWED_HOSTS)
 
     SUPABASE_USER = os.environ.get('SUPABASE_USER')
     SUPABASE_DB_NAME = os.environ.get('SUPABASE_DB_NAME')
@@ -49,29 +62,15 @@ if ENVIRONMENT == 'production':
     CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
     CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
     CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
-else:
-    DEBUG = True
-    ALLOWED_HOSTS = DEFAULT_HOSTS.split(',')
-    INSTALLED_APPS = ['daphne']
 
-# Application definition
-
-INSTALLED_APPS += [
-    "django.contrib.admin", "django.contrib.auth",
-    "django.contrib.contenttypes", 'django.contrib.sites',
-    "django.contrib.sessions", "django.contrib.messages",
-    "django.contrib.staticfiles", "django.contrib.sitemaps",
-    "corsheaders", "app", 'robots', 'captcha',
-    "django_redis", "crispy_forms",
-]
 
 # wagtail
-INSTALLED_APPS += [
+INSTALLED_APPS.extend([
     'wagtail.contrib.forms', 'wagtail.contrib.redirects', 'wagtail.embeds',
     'wagtail.sites', 'wagtail.users', 'wagtail.snippets', 'wagtail',
     'wagtail.images', 'wagtail.search', 'wagtail.admin',
     'modelcluster', 'taggit', 'wagtail.documents'
-]
+])
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -121,7 +120,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -235,7 +233,7 @@ WAGTAILADMIN_RICH_TEXT_EDITORS = {
 
 MAX_UPLOAD_SIZE: int = 15 * 1024 * 1024  # 15MB
 
-ALLOWED_IMAGE_TYPESS: list = [
+ALLOWED_IMAGE_TYPES: list = [
     'image/jpeg', 'image/png', 'image/gif', 'image/webp',
     'image/svg+xml', 'image/bmp', 'image/tiff', 'image/heif',
     'image/heic', 'image/jpg', 'image/jfif'
@@ -275,9 +273,22 @@ def csrf_failure(request, reason=""):
     """
     Custom CSRF failure view.
     """
-    from app.views.auth.auth import CSRFFailureView
+    from authentication.views.auth.auth import CSRFFailureView
     return CSRFFailureView.as_view()(request, reason=reason)
 
 CSRF_FAILURE_VIEW = csrf_failure
 
 RATELIMIT = 1000
+
+# Cloudinary configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'your-cloud-name'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', 'your-api-key'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'your-api-secret'),
+}
+
+# Set Cloudinary as default file storage for development
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# For static files (if needed)
+# STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'

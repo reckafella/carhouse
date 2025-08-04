@@ -2,10 +2,13 @@ from django.views.generic import TemplateView
 from django.views.generic import RedirectView
 from django.db.models import Count, Q
 from django.views.generic.edit import FormView
-# from django.views.generic.edit import FormView
+from django.contrib import messages
+from django.urls import reverse_lazy
 
-from app.models.car import Vehicle, VehicleCategory
+from app.models.car import Vehicle
+from app.models.cars.category import VehicleCategory
 from app.forms.search import VehicleSearchForm
+from app.forms.contact import ContactMessageForm
 
 
 class HomeView(TemplateView):
@@ -16,14 +19,16 @@ class HomeView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Featured vehicles
-        context['featured_vehicles'] = Vehicle.objects.live().filter(
+        context['featured_vehicles'] = Vehicle.objects.filter(
+            live=True,
             published=True,
             featured=True,
             sold=False
         )[:6]
 
         # Latest vehicles
-        context['latest_vehicles'] = Vehicle.objects.live().filter(
+        context['latest_vehicles'] = Vehicle.objects.filter(
+            live=True,
             published=True,
             sold=False
         ).order_by('-first_published_at')[:8]
@@ -64,7 +69,8 @@ class AboutView(TemplateView):
 
 class ContactView(FormView):
     template_name = "app/contact/contact.html"
-    status = 200
+    form_class = ContactMessageForm
+    success_url = reverse_lazy('app:contact')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -84,6 +90,12 @@ class ContactView(FormView):
         return context
 
     def form_valid(self, form):
+        # Save the contact message
+        form.save()
+        messages.success(
+            self.request,
+            "Thank you for your message! We'll get back to you soon."
+        )
         return super().form_valid(form)
 
 

@@ -11,64 +11,89 @@ class LoginForm(forms.Form):
     """form to handle login info"""
 
     username = forms.CharField(
-        label="Username",
+        label="Username or Email",
         required=True,
-        max_length=30,
-        validators=[MaxLengthValidator(30)],
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter your username or email"
+        }),
     )
 
     password = forms.CharField(
         label="Password",
         required=True,
-        min_length=8,
-        max_length=60,
-        widget=forms.PasswordInput(
-            attrs={"class": "form-control", "id": "password1"},
-            render_value=True
-        ),
-        help_text="Password must be at least 8 characters long",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter your password"
+        }),
     )
 
-    captcha = CaptchaField(
-        label="Captcha",
-        help_text="Enter the characters shown in the image",
-        widget=CaptchaTextInput(attrs={"class": "form-control"}),
+    remember_me = forms.BooleanField(
+        label="Remember me",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "custom-control-input"}),
     )
+
+    # Remove captcha for now to simplify login
+    # captcha = CaptchaField(
+    #     label="Captcha",
+    #     help_text="Enter the characters shown in the image",
+    #     widget=CaptchaTextInput(attrs={"class": "form-control"}),
+    # )
 
 
 class SignupForm(UserCreationForm):
     """form to handle register info"""
 
-    username = forms.CharField(
-        label="Username",
-        required=True,
-        max_length=30,
-        validators=[MaxLengthValidator(30)],
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-
     first_name = forms.CharField(
         label="First Name",
-        required=True,
+        required=False,
         max_length=30,
-        validators=[MaxLengthValidator(30)],
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter your first name"
+        }),
     )
 
     last_name = forms.CharField(
         label="Last Name",
-        required=True,
+        required=False,
         max_length=30,
-        validators=[MaxLengthValidator(30)],
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter your last name"
+        }),
     )
 
     email = forms.EmailField(
-        label="Email",
+        label="Email Address",
         required=True,
-        widget=forms.EmailInput(attrs={"class": "form-control"}),
+        widget=forms.EmailInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter your email address"
+        }),
     )
+
+    class Meta:
+        model = User
+        fields = ("username", "first_name", "last_name",
+                  "email", "password1", "password2")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Choose a username'
+        })
+        self.fields['password1'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Create a password'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Confirm your password'
+        })
 
     password1 = forms.CharField(
         label="Password",
@@ -102,7 +127,7 @@ class SignupForm(UserCreationForm):
         widget=CaptchaTextInput(attrs={"class": "form-control"}),
     )
 
-    class Meta:
+    class _Meta:
         model = User
         fields = [
             "username",

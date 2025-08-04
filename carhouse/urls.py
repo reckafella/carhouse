@@ -40,7 +40,7 @@ urlpatterns = [
     path('wagtail/login', redirect_to),
     path('robots.txt', include('robots.urls')),
     path('', include('app.urls')),
-    path('', include('auth.urls')),
+    path('', include('authentication.urls')),
     path('captcha/refresh/', CaptchaRefreshView.as_view(),
          name='captcha-refresh'),
     path('captcha/', include('captcha.urls')),

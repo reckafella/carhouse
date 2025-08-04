@@ -1,61 +1,106 @@
 from django import forms
+from app.models.models import ContactMessage
 
 
-class ContactSellerForm(forms.ModelForm):
-    def __init__(self, name, email, message):
-        self.name = name
-        self.email = email
-        self.message = message
+class ContactSellerForm(forms.Form):
+    """
+    Form for contacting vehicle sellers
+    """
+    name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your Name'
+        })
+    )
 
-    def validate(self):
-        if not self.name or not self.email or not self.message:
-            raise ValueError("All fields are required.")
-        if "@" not in self.email:
-            raise ValueError("Invalid email address.")
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your Email'
+        })
+    )
+
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your Phone (Optional)'
+        })
+    )
+
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Your message...'
+        })
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and '@' not in email:
+            raise forms.ValidationError("Please enter a valid email address.")
+        return email
+
+    def send_email(self, vehicle, seller_email):
+        """
+        Send email to the seller about the vehicle inquiry
+        """
+        # TODO: Implement actual email sending logic
+        # This would typically use Django's email functionality
+        subject = f"Inquiry about {vehicle.title}"
+        message_body = f"""
+        You have received a new inquiry about your vehicle listing:
+
+        Vehicle: {vehicle.title}
+        Price: ${vehicle.display_price}
+
+        From: {self.cleaned_data['name']} ({self.cleaned_data['email']})
+        Phone: {self.cleaned_data.get('phone', 'Not provided')}
+
+        Message:
+        {self.cleaned_data['message']}
+        """
+
+        # For now, just print the message (replace with actual email sending)
+        print(f"Email would be sent to: {seller_email}")
+        print(f"Subject: {subject}")
+        print(f"Message: {message_body}")
+
         return True
 
-    def send_email(self):
-        # Simulate sending an email
-        print(f"Sending email to {self.email}...")
-        print(f"Name: {self.name}")
-        print(f"Message: {self.message}")
-        print("Email sent successfully.")
-        return True
 
-    def save(self):
-        # Simulate saving the form data to a database
-        print("Saving form data to the database...")
-        print(f"Name: {self.name}")
-        print(f"Email: {self.email}")
-        print(f"Message: {self.message}")
-        print("Form data saved successfully.")
-        return True
-
-    def handle_success(self):
-        # Simulate handling success
-        print("Handling success...")
-        print("Form submitted successfully.")
-        return True
-
-    def handle_error(self, error_message):
-        # Simulate handling error
-        print("Handling error...")
-        print(f"Error: {error_message}")
-        return False
-
-    def get_context_data(self, **kwargs):
-        context = {
-            "page_title": "Contact Seller",
-            "form_title": "Contact Seller",
-            "submit_text": "Send Message",
-            "data_loading_text": "Sending...",
-            "extra_messages": [
-                {
-                    "text": "Need assistance?",
-                    "link": "/help/",
-                    "link_text": "Help Center",
-                }
-            ],
+class ContactMessageForm(forms.ModelForm):
+    """
+    General contact form for the website
+    """
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'email', 'subject', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your Name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your Email'
+            }),
+            'subject': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Subject'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Your Message'
+            }),
         }
-        context.update(kwargs)
-        return context
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and '@' not in email:
+            raise forms.ValidationError("Please enter a valid email address.")
+        return email

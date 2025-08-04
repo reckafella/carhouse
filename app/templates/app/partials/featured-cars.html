@@ -7,47 +7,103 @@
         <!-- Main title -->
         <div class="main-title">
             <h1>Featured <span>Cars</span></h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            <p>Discover our hand-picked selection of quality vehicles.</p>
         </div>
         <!-- Slick slider area start -->
         <div class="slick-slider-area clearfix">
             <div class="row slick-carousel"
                 data-slick='{"slidesToShow": 3, "responsive":[{"breakpoint": 1024,"settings":{"slidesToShow": 2}}, {"breakpoint": 768,"settings":{"slidesToShow": 1}}]}'>
+                
+                {% for vehicle in featured_vehicles %}
                 <div class="slick-slide-item">
                     <div class="car-box-3">
                         <div class="car-thumbnail">
-                            <a href="car-details.html" class="car-img">
+                            <a href="{{ vehicle.url }}" class="car-img">
                                 <div class="tag-2">Featured</div>
+                                {% if vehicle.has_discount %}
                                 <div class="price-box">
-                                    <span class="del"><del>$805.00</del></span>
+                                    <span class="del"><del>${{ vehicle.price|floatformat:0 }}</del></span>
                                     <br>
-                                    <span>$780.00</span>
+                                    <span>${{ vehicle.display_price|floatformat:0 }}</span>
                                 </div>
-                                <img class="d-block w-100" src="{% static 'assets/img/car/car-1.jpg' %}" alt="car">
+                                {% else %}
+                                <div class="price-box">
+                                    <span>${{ vehicle.display_price|floatformat:0 }}</span>
+                                </div>
+                                {% endif %}
+                                {% if vehicle.primary_image %}
+                                <img class="d-block w-100" src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}">
+                                {% else %}
+                                <img class="d-block w-100" src="{% static 'assets/img/placeholder-car.jpg' %}" alt="{{ vehicle.title }}">
+                                {% endif %}
                             </a>
                             <div class="carbox-overlap-wrapper">
                                 <div class="overlap-box">
                                     <div class="overlap-btns-area">
+                                        {% if vehicle.gallery_images.all %}
                                         <div class="car-magnify-gallery">
-                                            <a href="{% static 'assets/img/car/car-1.jpg' %}" class="overlap-btn">
+                                            <a href="{{ vehicle.primary_image }}" class="overlap-btn">
                                                 <i class="fa fa-expand"></i>
-                                                <img class="hidden" src="{% static 'assets/img/car/car-1.jpg' %}">
+                                                <img class="hidden" src="{{ vehicle.primary_image }}">
                                             </a>
-                                            <a href="{% static 'assets/img/car/car-2.jpg' %}" class="hidden">
-                                                <img class="hidden" src="{% static 'assets/img/car/car-2.jpg' %}">
+                                            {% for gallery_image in vehicle.gallery_images.all|slice:":4" %}
+                                            <a href="{{ gallery_image.optimized_image_url|default:gallery_image.cloudinary_image_url }}" class="hidden">
+                                                <img class="hidden" src="{{ gallery_image.optimized_image_url|default:gallery_image.cloudinary_image_url }}">
                                             </a>
-                                            <a href="{% static 'assets/img/car/car-3.jpg' %}" class="hidden">
-                                                <img class="hidden" src="{% static 'assets/img/car/car-3.jpg' %}">
-                                            </a>
-                                            <a href="{% static 'assets/img/car/car-4.jpg' %}" class="hidden">
-                                                <img class="hidden" src="{% static 'assets/img/car/car-4.jpg' %}">
-                                            </a>
-                                            <a href="{% static 'assets/img/car/car-5.jpg' %}" class="hidden">
-                                                <img class="hidden" src="{% static 'assets/img/car/car-5.jpg' %}">
-                                            </a>
+                                            {% endfor %}
                                         </div>
+                                        {% endif %}
+                                        <a class="overlap-btn" href="{{ vehicle.url }}">
+                                            <i class="fa fa-link"></i>
+                                        </a>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <h1 class="title">
+                                <a href="{{ vehicle.url }}">{{ vehicle.title }}</a>
+                            </h1>
+                            <div class="location">
+                                <a href="{{ vehicle.url }}">
+                                    <i class="flaticon-pin"></i>{{ vehicle.year }} • {{ vehicle.mileage|floatformat:0 }} miles
+                                </a>
+                            </div>
+                            <ul class="facilities-list clearfix">
+                                <li>
+                                    <i class="flaticon-engine"></i>{{ vehicle.get_fuel_type_display }}
+                                </li>
+                                <li>
+                                    <i class="flaticon-dashboard"></i>{{ vehicle.get_transmission_display }}
+                                </li>
+                                <li>
+                                    <i class="flaticon-car-seat"></i>{{ vehicle.seats }} Seats
+                                </li>
+                                <li>
+                                    <i class="flaticon-car"></i>{{ vehicle.doors }} Doors
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Fallback content when no featured vehicles are available -->
+                <div class="slick-slide-item">
+                    <div class="car-box-3">
+                        <div class="car-thumbnail">
+                            <div class="no-vehicles-message text-center p-4">
+                                <i class="fa fa-car fa-3x text-muted mb-3"></i>
+                                <h4>No Featured Vehicles</h4>
+                                <p class="text-muted">Featured vehicles will appear here once added.</p>
+                                <a href="{% url 'app:cars_list' %}" class="btn btn-primary">Browse All Vehicles</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Slick slider area end -->
                             </div>
                         </div>
                         <div class="detail">

@@ -1,0 +1,347 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Create Vehicle Listing - {{ site.site_name }}{% endblock %}
+
+{% block content %}
+<!-- Sub banner start -->
+<div class="sub-banner overview-bgi">
+    <div class="container breadcrumb-area">
+        <div class="breadcrumb-areas">
+            <h1>Create Vehicle Listing</h1>
+            <ul class="breadcrumbs">
+                <li><a href="{% url 'app:home' %}">Home</a></li>
+                <li><a href="{% url 'app:dashboard' %}">Dashboard</a></li>
+                <li class="active">Create Listing</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Sub Banner end -->
+
+<!-- Create vehicle form start -->
+<div class="content-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Vehicle Information</h4>
+                        <p class="text-muted">Fill in the details about your vehicle</p>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Basic Information -->
+                            <div class="form-section mb-4">
+                                <h5 class="section-title">Basic Information</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.make.id_for_label }}">Make *</label>
+                                            {{ form.make|add_class:"form-control" }}
+                                            {% if form.make.errors %}
+                                            <div class="text-danger">{{ form.make.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.model.id_for_label }}">Model *</label>
+                                            {{ form.model|add_class:"form-control" }}
+                                            {% if form.model.errors %}
+                                            <div class="text-danger">{{ form.model.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.year.id_for_label }}">Year *</label>
+                                            {{ form.year|add_class:"form-control" }}
+                                            {% if form.year.errors %}
+                                            <div class="text-danger">{{ form.year.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.trim.id_for_label }}">Trim</label>
+                                            {{ form.trim|add_class:"form-control" }}
+                                            {% if form.trim.errors %}
+                                            <div class="text-danger">{{ form.trim.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pricing -->
+                            <div class="form-section mb-4">
+                                <h5 class="section-title">Pricing</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.price.id_for_label }}">Price *</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">$</span>
+                                                </div>
+                                                {{ form.price|add_class:"form-control" }}
+                                            </div>
+                                            {% if form.price.errors %}
+                                            <div class="text-danger">{{ form.price.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.sale_price.id_for_label }}">Sale Price</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">$</span>
+                                                </div>
+                                                {{ form.sale_price|add_class:"form-control" }}
+                                            </div>
+                                            <small class="form-text text-muted">Optional discounted price</small>
+                                            {% if form.sale_price.errors %}
+                                            <div class="text-danger">{{ form.sale_price.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Details -->
+                            <div class="form-section mb-4">
+                                <h5 class="section-title">Vehicle Details</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.mileage.id_for_label }}">Mileage *</label>
+                                            {{ form.mileage|add_class:"form-control" }}
+                                            {% if form.mileage.errors %}
+                                            <div class="text-danger">{{ form.mileage.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.condition.id_for_label }}">Condition *</label>
+                                            {{ form.condition|add_class:"form-control" }}
+                                            {% if form.condition.errors %}
+                                            <div class="text-danger">{{ form.condition.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.transmission.id_for_label }}">Transmission *</label>
+                                            {{ form.transmission|add_class:"form-control" }}
+                                            {% if form.transmission.errors %}
+                                            <div class="text-danger">{{ form.transmission.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.fuel_type.id_for_label }}">Fuel Type *</label>
+                                            {{ form.fuel_type|add_class:"form-control" }}
+                                            {% if form.fuel_type.errors %}
+                                            <div class="text-danger">{{ form.fuel_type.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.color.id_for_label }}">Exterior Color *</label>
+                                            {{ form.color|add_class:"form-control" }}
+                                            {% if form.color.errors %}
+                                            <div class="text-danger">{{ form.color.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.interior_color.id_for_label }}">Interior Color</label>
+                                            {{ form.interior_color|add_class:"form-control" }}
+                                            {% if form.interior_color.errors %}
+                                            <div class="text-danger">{{ form.interior_color.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.doors.id_for_label }}">Doors</label>
+                                            {{ form.doors|add_class:"form-control" }}
+                                            {% if form.doors.errors %}
+                                            <div class="text-danger">{{ form.doors.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.seats.id_for_label }}">Seats</label>
+                                            {{ form.seats|add_class:"form-control" }}
+                                            {% if form.seats.errors %}
+                                            <div class="text-danger">{{ form.seats.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.engine.id_for_label }}">Engine</label>
+                                            {{ form.engine|add_class:"form-control" }}
+                                            {% if form.engine.errors %}
+                                            <div class="text-danger">{{ form.engine.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.vin.id_for_label }}">VIN</label>
+                                            {{ form.vin|add_class:"form-control" }}
+                                            {% if form.vin.errors %}
+                                            <div class="text-danger">{{ form.vin.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="form-section mb-4">
+                                <h5 class="section-title">Description</h5>
+                                <div class="form-group">
+                                    <label for="{{ form.description.id_for_label }}">Vehicle Description</label>
+                                    {{ form.description }}
+                                    <small class="form-text text-muted">Describe the vehicle's condition, history, and features</small>
+                                    {% if form.description.errors %}
+                                    <div class="text-danger">{{ form.description.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Features and Categories -->
+                            <div class="form-section mb-4">
+                                <h5 class="section-title">Features & Categories</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Features</label>
+                                            {{ form.features }}
+                                            {% if form.features.errors %}
+                                            <div class="text-danger">{{ form.features.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Categories</label>
+                                            {{ form.categories }}
+                                            {% if form.categories.errors %}
+                                            <div class="text-danger">{{ form.categories.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Listing Settings -->
+                            <div class="form-section mb-4">
+                                <h5 class="section-title">Listing Settings</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.warranty_period.id_for_label }}">Warranty (months)</label>
+                                            {{ form.warranty_period|add_class:"form-control" }}
+                                            {% if form.warranty_period.errors %}
+                                            <div class="text-danger">{{ form.warranty_period.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            {{ form.published }}
+                                            <label class="form-check-label" for="{{ form.published.id_for_label }}">
+                                                Publish listing immediately
+                                            </label>
+                                            {% if form.published.errors %}
+                                            <div class="text-danger">{{ form.published.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            {{ form.featured }}
+                                            <label class="form-check-label" for="{{ form.featured.id_for_label }}">
+                                                Feature this listing
+                                            </label>
+                                            {% if form.featured.errors %}
+                                            <div class="text-danger">{{ form.featured.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit buttons -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fa fa-car"></i> Create Vehicle Listing
+                                </button>
+                                <a href="{% url 'app:dashboard' %}" class="btn btn-secondary btn-lg ml-2">
+                                    <i class="fa fa-arrow-left"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Create vehicle form end -->
+
+<style>
+.form-section {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+.section-title {
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #007bff;
+    display: inline-block;
+}
+.card {
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+.form-check {
+    padding-top: 7px;
+}
+.form-actions {
+    text-align: center;
+    padding-top: 20px;
+}
+</style>
+
+{% endblock %}

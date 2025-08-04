@@ -9,13 +9,14 @@ from app.views.helpers.helpers import is_ajax
 
 
 class BaseAuthentication(FormView):
-    template_name = "auth/auth.html"
+    # template_name = "auth/auth/auth.html"
     form_class = None
 
     def get_success_url(self):
         next_url = self.request.GET.get("next")\
             or self.request.POST.get("next")
-        if url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+        if next_url and url_has_allowed_host_and_scheme(
+          next_url, allowed_hosts=None):
             return next_url
         return reverse("app:home")
 

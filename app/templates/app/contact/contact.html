@@ -1,4 +1,198 @@
 {% extends 'app/base.html' %}
-{% block title %}Contact Us{% endblock %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Contact Us - {{ site.site_name }}{% endblock %}
+
 {% block content %}
+<!-- Sub banner start -->
+<div class="sub-banner overview-bgi">
+    <div class="container breadcrumb-area">
+        <div class="breadcrumb-areas">
+            <h1>Contact Us</h1>
+            <ul class="breadcrumbs">
+                <li><a href="{% url 'app:home' %}">Home</a></li>
+                <li class="active">Contact</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Sub Banner end -->
+
+<!-- Contact section start -->
+<div class="contact-section content-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                <div class="contact-form-section">
+                    <div class="main-title">
+                        <h1>Get in Touch</h1>
+                        <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+                    </div>
+
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post" class="contact-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.id_for_label }}">Your Name *</label>
+                                    {{ form.name|add_class:"form-control" }}
+                                    {% if form.name.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.name.errors %}
+                                        <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}">Your Email *</label>
+                                    {{ form.email|add_class:"form-control" }}
+                                    {% if form.email.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.email.errors %}
+                                        <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.subject.id_for_label }}">Subject *</label>
+                            {{ form.subject|add_class:"form-control" }}
+                            {% if form.subject.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.subject.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.message.id_for_label }}">Your Message *</label>
+                            {{ form.message|add_class:"form-control" }}
+                            {% if form.message.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.message.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane"></i> Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-12">
+                <div class="contact-info">
+                    <div class="main-title">
+                        <h3>Contact Information</h3>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fa fa-map-marker"></i>
+                        <div class="contact-text">
+                            <h4>Our Address</h4>
+                            <p>123 Main Street<br>City, State 12345</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fa fa-phone"></i>
+                        <div class="contact-text">
+                            <h4>Phone Number</h4>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fa fa-envelope"></i>
+                        <div class="contact-text">
+                            <h4>Email Address</h4>
+                            <p>info@carhouse.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Contact section end -->
+
+<style>
+.contact-section {
+    padding: 80px 0;
+}
+
+.contact-form-section {
+    background: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.contact-info {
+    background: #f8f9fa;
+    padding: 40px;
+    border-radius: 10px;
+    height: fit-content;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.contact-item i {
+    font-size: 24px;
+    color: #007bff;
+    margin-right: 20px;
+    min-width: 40px;
+}
+
+.contact-text h4 {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.contact-text p {
+    color: #666;
+    margin: 0;
+}
+
+.main-title {
+    margin-bottom: 30px;
+}
+
+.main-title h1, .main-title h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.main-title p {
+    color: #666;
+}
+</style>
 {% endblock %}

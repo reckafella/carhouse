@@ -1,0 +1,353 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }} - {{ site.site_name }}{% endblock %}
+
+{% block content %}
+<!-- Sub banner start -->
+<div class="sub-banner overview-bgi">
+    <div class="container breadcrumb-area">
+        <div class="breadcrumb-areas">
+            <h1>{{ page.title }}</h1>
+            <ul class="breadcrumbs">
+                <li><a href="{% url 'app:home' %}">Home</a></li>
+                <li class="active">{{ page.title }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Sub Banner end -->
+
+<!-- Vehicle listing page start -->
+<div class="featured-car content-area">
+    <div class="container">
+        {% if page.intro_text %}
+        <div class="row">
+            <div class="col-12">
+                <div class="intro-text mb-4">
+                    {{ page.intro_text|richtext }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Search and Filter Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="search-filter-section">
+                    <form method="get" class="search-form">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="text" name="q" class="form-control" placeholder="Search vehicles..." value="{{ request.GET.q }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <select name="transmission" class="form-control">
+                                        <option value="">Any Transmission</option>
+                                        {% for key, value in transmission_choices.items %}
+                                        <option value="{{ key }}" {% if request.GET.transmission == key %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <select name="fuel_type" class="form-control">
+                                        <option value="">Any Fuel Type</option>
+                                        {% for key, value in fuel_type_choices.items %}
+                                        <option value="{{ key }}" {% if request.GET.fuel_type == key %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <select name="color" class="form-control">
+                                        <option value="">Any Color</option>
+                                        {% for key, value in color_choices.items %}
+                                        <option value="{{ key }}" {% if request.GET.color == key %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <input type="number" name="min_price" class="form-control" placeholder="Min Price" value="{{ request.GET.min_price }}">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="number" name="max_price" class="form-control" placeholder="Max Price" value="{{ request.GET.max_price }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <input type="number" name="min_year" class="form-control" placeholder="Min Year" value="{{ request.GET.min_year }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <input type="number" name="max_year" class="form-control" placeholder="Max Year" value="{{ request.GET.max_year }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <input type="number" name="min_mileage" class="form-control" placeholder="Min Mileage" value="{{ request.GET.min_mileage }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <input type="number" name="max_mileage" class="form-control" placeholder="Max Mileage" value="{{ request.GET.max_mileage }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <select name="sort" class="form-control">
+                                        <option value="date_desc" {% if request.GET.sort == "date_desc" %}selected{% endif %}>Newest First</option>
+                                        <option value="date_asc" {% if request.GET.sort == "date_asc" %}selected{% endif %}>Oldest First</option>
+                                        <option value="price_asc" {% if request.GET.sort == "price_asc" %}selected{% endif %}>Price: Low to High</option>
+                                        <option value="price_desc" {% if request.GET.sort == "price_desc" %}selected{% endif %}>Price: High to Low</option>
+                                        <option value="mileage_asc" {% if request.GET.sort == "mileage_asc" %}selected{% endif %}>Mileage: Low to High</option>
+                                        <option value="year_desc" {% if request.GET.sort == "year_desc" %}selected{% endif %}>Year: Newest First</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary btn-block">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Info -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="results-info">
+                    <p class="text-muted">
+                        Showing {{ vehicles.start_index }}-{{ vehicles.end_index }} of {{ total_vehicles }} vehicles
+                        {% if request.GET.q %}
+                        for "{{ request.GET.q }}"
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicle Grid -->
+        <div class="row">
+            {% for vehicle in vehicles %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="car-box-3">
+                    <div class="car-thumbnail">
+                        <a href="{{ vehicle.url }}" class="car-img">
+                            {% if vehicle.has_discount %}
+                            <div class="tag sale-tag">{{ vehicle.discount_percentage }}% OFF</div>
+                            {% endif %}
+                            {% if vehicle.featured %}
+                            <div class="tag featured-tag">Featured</div>
+                            {% endif %}
+                            <div class="price-box">
+                                {% if vehicle.has_discount %}
+                                <span class="sale-price">${{ vehicle.display_price|floatformat:0 }}</span>
+                                <span class="original-price">${{ vehicle.price|floatformat:0 }}</span>
+                                {% else %}
+                                <span>${{ vehicle.display_price|floatformat:0 }}</span>
+                                {% endif %}
+                            </div>
+                            {% if vehicle.primary_image %}
+                            <img class="d-block w-100" src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" loading="lazy">
+                            {% else %}
+                            <img class="d-block w-100" src="{% static 'assets/img/placeholder-car.jpg' %}" alt="{{ vehicle.title }}" loading="lazy">
+                            {% endif %}
+                        </a>
+                        <div class="carbox-overlap-wrapper">
+                            <div class="overlap-box">
+                                <div class="overlap-btns-area">
+                                    {% if vehicle.gallery_images.all %}
+                                    <div class="car-magnify-gallery">
+                                        <a href="{{ vehicle.primary_image }}" class="overlap-btn" data-toggle="tooltip" title="View Gallery">
+                                            <i class="fa fa-expand"></i>
+                                        </a>
+                                        {% for gallery_image in vehicle.gallery_images.all %}
+                                        <a href="{{ gallery_image.optimized_image_url|default:gallery_image.cloudinary_image_url }}" class="hidden">
+                                            <img class="hidden" src="{{ gallery_image.optimized_image_url|default:gallery_image.cloudinary_image_url }}">
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <a class="overlap-btn" href="{{ vehicle.url }}" data-toggle="tooltip" title="View Details">
+                                        <i class="fa fa-link"></i>
+                                    </a>
+                                    {% if user.is_authenticated %}
+                                    <a class="overlap-btn save-vehicle" href="#" data-vehicle-id="{{ vehicle.id }}" data-toggle="tooltip" title="Save Vehicle">
+                                        <i class="fa fa-heart-o"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail">
+                        <h1 class="title">
+                            <a href="{{ vehicle.url }}">{{ vehicle.title }}</a>
+                        </h1>
+                        <div class="location">
+                            <a href="{{ vehicle.url }}">
+                                <i class="flaticon-pin"></i>{{ vehicle.year }} • {{ vehicle.mileage|floatformat:0 }} miles
+                            </a>
+                        </div>
+                        <ul class="facilities-list clearfix">
+                            <li>
+                                <i class="flaticon-engine"></i>{{ vehicle.get_fuel_type_display }}
+                            </li>
+                            <li>
+                                <i class="flaticon-dashboard"></i>{{ vehicle.get_transmission_display }}
+                            </li>
+                            <li>
+                                <i class="flaticon-car-seat"></i>{{ vehicle.seats }} Seats
+                            </li>
+                            <li>
+                                <i class="flaticon-car"></i>{{ vehicle.doors }} Doors
+                            </li>
+                        </ul>
+                        {% if vehicle.description %}
+                        <div class="description">
+                            {{ vehicle.description|richtext|truncatewords:20 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="no-results text-center py-5">
+                    <i class="fa fa-car fa-5x text-muted mb-3"></i>
+                    <h3>No vehicles found</h3>
+                    <p class="text-muted">Try adjusting your search criteria or browse all vehicles.</p>
+                    <a href="{% pageurl page %}" class="btn btn-primary">View All Vehicles</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="row">
+            <div class="col-12">
+                <div class="pagination-wrapper text-center">
+                    <nav aria-label="Vehicle pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if vehicles.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in current_filters.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ vehicles.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in vehicles.paginator.page_range %}
+                            {% if vehicles.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > vehicles.number|add:'-3' and num < vehicles.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in current_filters.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if vehicles.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in current_filters.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ vehicles.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Vehicle listing page end -->
+
+<style>
+.sale-tag {
+    background-color: #e74c3c;
+}
+.featured-tag {
+    background-color: #f39c12;
+    top: 40px;
+}
+.sale-price {
+    color: #e74c3c;
+    font-weight: bold;
+}
+.original-price {
+    text-decoration: line-through;
+    color: #95a5a6;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+.search-filter-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.no-results {
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+</style>
+
+<script>
+// Save vehicle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const saveButtons = document.querySelectorAll('.save-vehicle');
+    
+    saveButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const vehicleId = this.dataset.vehicleId;
+            
+            fetch(`{% url 'app:save_vehicle' %}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    'vehicle_id': vehicleId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.saved) {
+                    this.innerHTML = '<i class="fa fa-heart"></i>';
+                    this.setAttribute('data-original-title', 'Remove from Saved');
+                } else {
+                    this.innerHTML = '<i class="fa fa-heart-o"></i>';
+                    this.setAttribute('data-original-title', 'Save Vehicle');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

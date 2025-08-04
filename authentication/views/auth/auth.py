@@ -13,13 +13,14 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView, PasswordResetCompleteView
 )
 
-from auth.forms.auth import LoginForm, SignupForm
-from auth.views.auth.base import BaseAuthentication
+from authentication.forms.auth import LoginForm, SignupForm
+from authentication.views.auth.base import BaseAuthentication
 from app.views.helpers.helpers import is_ajax
 
 
 class SignupView(BaseAuthentication):
     form_class = SignupForm
+    template_name = "auth/signup.html"
 
     def form_valid(self, form):
         username = form.cleaned_data.get("username")
@@ -53,7 +54,7 @@ class SignupView(BaseAuthentication):
             "extra_messages": [
                 {
                     "text": "Already have an account?",
-                    "link": reverse("auth:login"),
+                    "link": reverse("authentication:login"),
                     "link_text": "Login",
                 }
             ],
@@ -63,6 +64,7 @@ class SignupView(BaseAuthentication):
 
 class LoginView(BaseAuthentication):
     form_class = LoginForm
+    template_name = "auth/login.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -75,7 +77,7 @@ class LoginView(BaseAuthentication):
             "extra_messages": [
                 {
                     "text": "Don't have an account?",
-                    "link": reverse("auth:signup"),
+                    "link": reverse("authentication:signup"),
                     "link_text": "Register",
                 }
             ],
@@ -128,7 +130,7 @@ class LogoutView(LoginRequiredMixin, View):
 class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     """Custom password change view"""
     template_name = 'app/auth/password_change.html'
-    success_url = reverse_lazy('app:password_change_done')
+    success_url = reverse_lazy('authentication:password_change_done')
 
 
 class CustomPasswordResetView(PasswordResetView):
@@ -136,7 +138,7 @@ class CustomPasswordResetView(PasswordResetView):
     template_name = 'app/auth/password_reset.html'
     email_template_name = 'app/auth/password_reset_email.html'
     subject_template_name = 'app/auth/password_reset_subject.txt'
-    success_url = reverse_lazy('app:password_reset_done')
+    success_url = reverse_lazy('authentication:password_reset_done')
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
@@ -147,7 +149,7 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     """Custom password reset confirm view"""
     template_name = 'app/auth/password_reset_confirm.html'
-    success_url = reverse_lazy('app:password_reset_complete')
+    success_url = reverse_lazy('authentication:password_reset_complete')
 
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):

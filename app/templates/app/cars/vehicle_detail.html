@@ -1,0 +1,480 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }} - {{ site.site_name }}{% endblock %}
+
+{% block content %}
+<!-- Sub banner start -->
+<div class="sub-banner overview-bgi">
+    <div class="container breadcrumb-area">
+        <div class="breadcrumb-areas">
+            <h1>{{ page.title }}</h1>
+            <ul class="breadcrumbs">
+                <li><a href="{% url 'app:home' %}">Home</a></li>
+                <li><a href="{% pageurl page.get_parent %}">Vehicles</a></li>
+                <li class="active">{{ page.title }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Sub Banner end -->
+
+<!-- Car details page start -->
+<div class="car-details-page content-area-6">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 col-xs-12">
+                <div class="car-details-section">
+                    <!-- Heading start -->
+                    <div class="heading-car clearfix">
+                        <div class="pull-left">
+                            <h3>{{ page.title }}</h3>
+                            <h6>
+                                <i class="flaticon-pin"></i>{{ page.year }} • {{ page.mileage|floatformat:0 }} miles • {{ page.get_condition_display }}
+                            </h6>
+                        </div>
+                        <div class="pull-right">
+                            {% if page.has_discount %}
+                            <h3>
+                                <span class="sale-price">${{ page.display_price|floatformat:0 }}</span>
+                                <span class="original-price">${{ page.price|floatformat:0 }}</span>
+                            </h3>
+                            <div class="discount-badge">
+                                {{ page.discount_percentage }}% OFF
+                            </div>
+                            {% else %}
+                            <h3><span>${{ page.display_price|floatformat:0 }}</span></h3>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Image Gallery -->
+                    <div id="carDetailsSlider" class="carousel car-details-sliders slide mb-40">
+                        <!-- main slider carousel items -->
+                        <div class="carousel-inner">
+                            {% if page.primary_image %}
+                            <div class="active item carousel-item" data-slide-number="0">
+                                <img src="{{ page.primary_image }}" class="img-fluid" alt="{{ page.title }} - Main Image">
+                            </div>
+                            {% endif %}
+                            
+                            {% for image in page.gallery_images.all %}
+                            <div class="item carousel-item" data-slide-number="{{ forloop.counter }}">
+                                <img src="{{ image.optimized_image_url|default:image.cloudinary_image_url }}" 
+                                     class="img-fluid" 
+                                     alt="{{ image.alt_text|default:page.title }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Carousel controls -->
+                        {% if page.gallery_images.all %}
+                        <a class="carousel-control-prev" href="#carDetailsSlider" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carDetailsSlider" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                        {% endif %}
+
+                        <!-- Thumbnail navigation -->
+                        {% if page.gallery_images.all %}
+                        <div class="carousel-indicators-section clearfix">
+                            <ul class="carousel-indicators car-properties list-inline nav nav-justified">
+                                {% if page.primary_image %}
+                                <li class="list-inline-item active">
+                                    <a id="carousel-selector-0" class="selected" data-slide-to="0" data-target="#carDetailsSlider">
+                                        <img src="{{ page.primary_image }}" class="img-fluid" alt="{{ page.title }}">
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                {% for image in page.gallery_images.all %}
+                                <li class="list-inline-item">
+                                    <a id="carousel-selector-{{ forloop.counter }}" 
+                                       data-slide-to="{{ forloop.counter }}" 
+                                       data-target="#carDetailsSlider">
+                                        <img src="{{ image.optimized_image_url|default:image.cloudinary_image_url }}" 
+                                             class="img-fluid" 
+                                             alt="{{ image.alt_text|default:page.title }}">
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tabbing box start -->
+                    <div class="tabbing tabbing-box mb-40">
+                        <ul class="nav nav-tabs" id="carTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active show" id="overview-tab" data-toggle="tab" href="#overview" role="tab">Vehicle Overview</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="features-tab" data-toggle="tab" href="#features" role="tab">Features</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab">Reviews</a>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="carTabContent">
+                            <!-- Overview Tab -->
+                            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <h4 class="mb-3">Vehicle Specifications</h4>
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Make:</strong></td>
+                                                    <td>{{ page.make }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Model:</strong></td>
+                                                    <td>{{ page.model }}</td>
+                                                </tr>
+                                                {% if page.trim %}
+                                                <tr>
+                                                    <td><strong>Trim:</strong></td>
+                                                    <td>{{ page.trim }}</td>
+                                                </tr>
+                                                {% endif %}
+                                                <tr>
+                                                    <td><strong>Year:</strong></td>
+                                                    <td>{{ page.year }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Mileage:</strong></td>
+                                                    <td>{{ page.mileage|floatformat:0 }} miles</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Transmission:</strong></td>
+                                                    <td>{{ page.get_transmission_display }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Fuel Type:</strong></td>
+                                                    <td>{{ page.get_fuel_type_display }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Engine:</strong></td>
+                                                    <td>{{ page.engine|default:"Not specified" }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h4 class="mb-3">Additional Details</h4>
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Exterior Color:</strong></td>
+                                                    <td>{{ page.get_color_display }}</td>
+                                                </tr>
+                                                {% if page.interior_color %}
+                                                <tr>
+                                                    <td><strong>Interior Color:</strong></td>
+                                                    <td>{{ page.interior_color }}</td>
+                                                </tr>
+                                                {% endif %}
+                                                <tr>
+                                                    <td><strong>Doors:</strong></td>
+                                                    <td>{{ page.doors }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Seats:</strong></td>
+                                                    <td>{{ page.seats }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Condition:</strong></td>
+                                                    <td>{{ page.get_condition_display }}</td>
+                                                </tr>
+                                                {% if page.vin %}
+                                                <tr>
+                                                    <td><strong>VIN:</strong></td>
+                                                    <td>{{ page.vin }}</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if page.warranty_period %}
+                                                <tr>
+                                                    <td><strong>Warranty:</strong></td>
+                                                    <td>{{ page.warranty_period }} months</td>
+                                                </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                {% if page.description %}
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h4 class="mb-3">Description</h4>
+                                        <div class="vehicle-description">
+                                            {{ page.description|richtext }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Features Tab -->
+                            <div class="tab-pane fade" id="features" role="tabpanel">
+                                <h4 class="mb-3">Vehicle Features</h4>
+                                {% if page.features.all %}
+                                <div class="row">
+                                    {% for feature in page.features.all %}
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="feature-item">
+                                            {% if feature.icon %}
+                                            <i class="{{ feature.icon }} me-2"></i>
+                                            {% else %}
+                                            <i class="fa fa-check-circle text-success me-2"></i>
+                                            {% endif %}
+                                            {{ feature.name }}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <p class="text-muted">No specific features listed for this vehicle.</p>
+                                {% endif %}
+                                
+                                {% if page.categories.all %}
+                                <h5 class="mt-4 mb-3">Categories</h5>
+                                <div class="categories">
+                                    {% for category in page.categories.all %}
+                                    <span class="badge badge-secondary me-2 mb-2">{{ category.name }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Reviews Tab -->
+                            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                                <h4 class="mb-3">Customer Reviews</h4>
+                                
+                                {% if page.reviews.approved.all %}
+                                {% for review in page.reviews.approved.all %}
+                                <div class="review-item mb-4 p-3 border rounded">
+                                    <div class="review-header d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <h6 class="mb-0">{{ review.title }}</h6>
+                                            <small class="text-muted">by {{ review.user.get_full_name|default:review.user.username }} on {{ review.created_at|date:"M d, Y" }}</small>
+                                        </div>
+                                        <div class="rating">
+                                            {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                            <i class="fa fa-star text-warning"></i>
+                                            {% else %}
+                                            <i class="fa fa-star-o text-muted"></i>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <p class="mb-0">{{ review.comment }}</p>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <p class="text-muted">No reviews yet for this vehicle.</p>
+                                {% endif %}
+                                
+                                {% if user.is_authenticated %}
+                                <div class="add-review mt-4">
+                                    <h5>Add Your Review</h5>
+                                    <form method="post" action="{% url 'app:add_review' page.id %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="rating">Rating</label>
+                                            <select name="rating" id="rating" class="form-control" required>
+                                                <option value="">Select Rating</option>
+                                                <option value="5">5 Stars - Excellent</option>
+                                                <option value="4">4 Stars - Very Good</option>
+                                                <option value="3">3 Stars - Good</option>
+                                                <option value="2">2 Stars - Fair</option>
+                                                <option value="1">1 Star - Poor</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="title">Review Title</label>
+                                            <input type="text" name="title" id="title" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="comment">Your Review</label>
+                                            <textarea name="comment" id="comment" class="form-control" rows="4" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                                    </form>
+                                </div>
+                                {% else %}
+                                <p class="text-muted mt-4">
+                                    <a href="{% url 'authentication:login' %}">Login</a> to leave a review.
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tabbing box end -->
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4 col-md-12">
+                <div class="sidebar-right">
+                    <!-- Contact Form -->
+                    <div class="widget-2">
+                        <div class="widget-content">
+                            <div class="sidebar-car-overview">
+                                <div class="sidebar-car-dt">
+                                    <h5>Interested in this vehicle?</h5>
+                                    <p>Contact the seller for more information.</p>
+                                </div>
+                                <form method="post" action="{% url 'app:contact_seller' page.id %}">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="email" name="email" class="form-control" placeholder="Your Email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="tel" name="phone" class="form-control" placeholder="Your Phone">
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea name="message" class="form-control" rows="4" placeholder="Your message about {{ page.title }}">Hello, I'm interested in learning more about this {{ page.year }} {{ page.make }} {{ page.model }}. Is it still available?</textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Summary -->
+                    <div class="widget-2 mt-4">
+                        <div class="widget-content">
+                            <h5>Quick Summary</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Price:</strong> ${{ page.display_price|floatformat:0 }}</li>
+                                <li><strong>Year:</strong> {{ page.year }}</li>
+                                <li><strong>Mileage:</strong> {{ page.mileage|floatformat:0 }} miles</li>
+                                <li><strong>Transmission:</strong> {{ page.get_transmission_display }}</li>
+                                <li><strong>Fuel:</strong> {{ page.get_fuel_type_display }}</li>
+                                <li><strong>Color:</strong> {{ page.get_color_display }}</li>
+                            </ul>
+                            
+                            {% if user.is_authenticated %}
+                            <div class="action-buttons mt-3">
+                                <button class="btn btn-outline-primary btn-block save-vehicle" data-vehicle-id="{{ page.id }}">
+                                    <i class="fa fa-heart-o"></i> Save Vehicle
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Similar Vehicles -->
+                    {% if similar_vehicles %}
+                    <div class="widget-2 mt-4">
+                        <div class="widget-content">
+                            <h5>Similar Vehicles</h5>
+                            {% for vehicle in similar_vehicles %}
+                            <div class="similar-vehicle-item mb-3">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <img src="{{ vehicle.primary_image }}" class="img-fluid rounded" alt="{{ vehicle.title }}">
+                                    </div>
+                                    <div class="col-8">
+                                        <h6><a href="{{ vehicle.url }}">{{ vehicle.title }}</a></h6>
+                                        <p class="text-muted small">${{ vehicle.display_price|floatformat:0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Car details page end -->
+
+<style>
+.sale-price {
+    color: #e74c3c;
+    font-weight: bold;
+}
+.original-price {
+    text-decoration: line-through;
+    color: #95a5a6;
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+.discount-badge {
+    background-color: #e74c3c;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    display: inline-block;
+    margin-top: 5px;
+}
+.feature-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+.review-item {
+    background-color: #f8f9fa;
+}
+.similar-vehicle-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+.similar-vehicle-item:last-child {
+    border-bottom: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Save vehicle functionality
+    const saveButton = document.querySelector('.save-vehicle');
+    if (saveButton) {
+        saveButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const vehicleId = this.dataset.vehicleId;
+            
+            fetch(`{% url 'app:save_vehicle' %}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    'vehicle_id': vehicleId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.saved) {
+                    this.innerHTML = '<i class="fa fa-heart"></i> Saved';
+                    this.classList.remove('btn-outline-primary');
+                    this.classList.add('btn-primary');
+                } else {
+                    this.innerHTML = '<i class="fa fa-heart-o"></i> Save Vehicle';
+                    this.classList.remove('btn-primary');
+                    this.classList.add('btn-outline-primary');
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

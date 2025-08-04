@@ -7,9 +7,9 @@ class Command(BaseCommand):
     help = "Create a superuser"
 
     def handle(self, *args, **options):
-        username = os.getenv("DJANGO_SUPERUSER_USERNAME", "ethan")
+        username = os.getenv("DJANGO_SUPERUSER_USERNAME", "carhouse_admin")
         password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "@100/Chem")
-        email = os.getenv("DJANGO_SUPERUSER_EMAIL", "ethan@gmail.com")
+        email = os.getenv("DJANGO_SUPERUSER_EMAIL", "carhouse_admin@gmail.com")
         first_name = os.getenv("DJANGO_SUPERUSER_FIRST_NAME", "Ethan")
         last_name = os.getenv("DJANGO_SUPERUSER_LAST_NAME", "Wanyoike")
 
